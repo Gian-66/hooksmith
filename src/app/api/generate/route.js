@@ -4,19 +4,17 @@ export async function POST(req) {
   try {
     const { idea } = await req.json();
 
-    if (!idea) {
+    if (!idea || !idea.trim()) {
       return NextResponse.json(
-        { error: "Manca il campo 'idea'" },
+        { error: "Devi inserire un’idea" },
         { status: 400 }
       );
     }
 
     const prompt = `
-Sei un copywriter pubblicitario. 
-Genera 3 proposte di headline accattivanti e brevi (max 8 parole) con relative subhead esplicative, 
-pensate per una landing page che promuove questa idea: "${idea}".
-
-Rispondi in formato JSON, array di oggetti con "headline" e "subhead".
+Sei un copywriter professionista. 
+Genera 3 headline brevi (max 8 parole) e 3 subhead descrittive per questa idea: "${idea}".
+Rispondi in JSON, array di oggetti con "headline" e "subhead".
 `;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -26,7 +24,7 @@ Rispondi in formato JSON, array di oggetti con "headline" e "subhead".
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini", // puoi anche usare gpt-4o o gpt-3.5-turbo
+        model: "gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.8,
       }),
@@ -34,18 +32,30 @@ Rispondi in formato JSON, array di oggetti con "headline" e "subhead".
 
     const data = await response.json();
 
+    // Parsing sicuro del JSON generato dall'AI
     let hooks = [];
     try {
-      hooks = JSON.parse(data.choices[0].message.content);
+      const text = data.choices?.[0]?.message?.content || "[]";
+      hooks = JSON.parse(text);
     } catch (err) {
       console.error("Parsing JSON fallito:", err);
+      hooks = [
+        {
+          headline: `Scopri ${idea} subito`,
+          subhead: "Un modo semplice per ottenere risultati concreti.",
+        },
+        {
+          headline: `${idea} come mai prima`,
+          subhead: "Genera valore immediato con questa soluzione.",
+        },
+      ]; // fallback
     }
 
     return NextResponse.json({ hooks });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Errore nel server" },
+      { error: "Errore interno del server" },
       { status: 500 }
     );
   }
