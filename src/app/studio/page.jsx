@@ -4,8 +4,8 @@ import HookCard from "@/components/HookCard";
 
 export default function Studio() {
   const [idea, setIdea] = useState("");
-  const [loading, setLoading] = useState(false);
   const [hooks, setHooks] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const generateHooks = async () => {
@@ -37,7 +37,7 @@ export default function Studio() {
   };
 
   return (
-    <section className="max-w-3xl mx-auto py-16 px-6">
+    <main className="max-w-3xl mx-auto py-16 px-6">
       <h1 className="text-3xl font-bold mb-6 text-indigo-600 text-center">
         Genera i tuoi Hook ✨
       </h1>
@@ -46,7 +46,7 @@ export default function Studio() {
         <input
           value={idea}
           onChange={(e) => setIdea(e.target.value)}
-          placeholder="Descrivi il tuo prodotto..."
+          placeholder="Scrivi il tuo prodotto..."
           className="flex-1 border rounded-xl px-4 py-3"
         />
         <button
@@ -67,6 +67,6 @@ export default function Studio() {
           ))}
         </div>
       )}
-    </section>
+    </main>
   );
 }
